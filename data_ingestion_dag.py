@@ -4,6 +4,7 @@
  from airflow.operators.empty import EmptyOperator
  from airflow.providers.http.operators.http import SimpleHttpOperator
  from airflow.providers.amazon.aws.operators.s3 import S3CreateObjectOperator
+ from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
 
 '''
 This DAG will pull NYT Book Review data and GoodReads data and compare reviews on popular books.
@@ -12,6 +13,7 @@ It will flag any book where the review values differ beyond a given threshold.
 '''
 S3_BUCKET = "s3://veda-project-mwaa"
 DATE = datetime.date().isoformat()
+NYT_S3_KEY = f"/nyt/{DATE}/bestsellers.json"
 
  with DAG(
      dag_id="data_ingestion",
@@ -31,9 +33,19 @@ DATE = datetime.date().isoformat()
     nyt_data_to_S3_task = S3CreateObjectOperator(
         task_id="create_nyt_data_s3_object",
         s3_bucket=S3_BUCKET,
-        s3_key=f"/nyt/{date}/bestsellers.json",
+        s3_key=NYT_S3_KEY,
         data=ti.xcom_pull(task_ids='pull_nytimes_data'),
         replace=True,
+    )
+
+    nyt_data_s3_to_redshift_task = S3ToRedshiftOperator(
+        task_id="transfer_s3_to_redshift",
+        redshift_conn_id=conn_id_name,
+        s3_bucket=S3_BUCKET,
+        s3_key=NYT_S3_KEY,
+        schema="PUBLIC",
+        table=REDSHIFT_TABLE,
+        copy_options=["csv"],
     )
 
 
