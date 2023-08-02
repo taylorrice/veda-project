@@ -88,5 +88,5 @@ REDSHIFT_TABLE = "default-workgroup.616454454624.us-east-2.redshift-serverless.a
 
      end = EmptyOperator(task_id="end")
 
-     start >> pull_nytimes_data >> nyt_data_to_S3_task >> nyt_data_s3_to_redshift_task >> get_booklist_task
-     get_booklist_task >> pull_goodreads_data_task >> goodreads_data_to_S3_task >> goodreads_data_s3_to_redshift_task
+     start >> pull_nytimes_data >> nyt_data_to_S3_task >> nyt_data_s3_to_redshift_task >> end #get_booklist_task
+     #get_booklist_task >> pull_goodreads_data_task >> goodreads_data_to_S3_task >> goodreads_data_s3_to_redshift_task
