@@ -16,6 +16,7 @@ S3_BUCKET = "s3://veda-project-mwaa"
 DATE = datetime.date().isoformat()
 NYT_S3_KEY = f"/nyt/{DATE}/bestsellers.json"
 GOODREADS_S3_KEY = f"/goodreads/{DATE}/reviews.json"
+REDSHIFT_TABLE = "default-workgroup.616454454624.us-east-2.redshift-serverless.amazonaws.com:5439/dev"
 
  with DAG(
      dag_id="data_ingestion",
@@ -81,6 +82,9 @@ GOODREADS_S3_KEY = f"/goodreads/{DATE}/reviews.json"
         copy_options=["json"],
     )
 
+    transform_data_task = RedshiftSQLOperator(
+
+    )
 
      end = EmptyOperator(task_id="end")
 
