@@ -53,7 +53,7 @@ nyt_data_s3_to_redshift_task = S3ToRedshiftOperator(
 
 get_booklist_task = RedshiftSQLOperator(
     task_id='get_booklist',
-    sql= ### WRITE SQL
+    sql= "",### WRITE SQL
 )
 
 pull_goodreads_data_task = SimpleHttpOperator(
