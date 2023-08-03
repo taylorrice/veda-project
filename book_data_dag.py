@@ -45,7 +45,7 @@ with DAG(
         task_id='get_isbn_values', sql='SELECT "isbn13" FROM "dev"."public"."bestsellers_nyt_2010_2019";'
     )
 
-    @task
+    @task(task_id="get_subject_from_isbn")
     def get_subject_from_isbn(**kwargs: Any) -> Dict[List]:
         isbns = kwargs["ti"].xcom_pull(task_ids='get_isbn_values')
 
