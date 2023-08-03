@@ -1,7 +1,6 @@
 import datetime
 import requests
-from typing import Any
-import pandas as pd
+from typing import Any, Dict, List
 
 from airflow import DAG
 from airflow.models.taskinstance import TaskInstance
@@ -46,27 +45,25 @@ with DAG(
     )
 
     @task
-    def get_subject_from_isbn(**kwargs: Any) -> pd.DataFrame:
+    def get_subject_from_isbn(**kwargs: Any) -> Dict[List]:
         isbns = kwargs["ti"].xcom_pull(task_ids='get_isbn_values')
 
-        subject_df = pd.DataFrame(columns=["isbn13", "book_subjects"])
+        subject_dict = {["isbn13", "book_subjects"]}
 
         for num in isbns:
             res_json = requests.get(f"https://openlibrary.org/books/{num}.json")
             if res_json["subjects"]:
                 subjects = res_json["subjects"]
-                subject_df.append({"isbn13":num, "book_subjects":subjects})
+                subject_dict.append([num, subjects])
             else:
-                subject_df.append({"isbn13":num, "book_subjects":None})
+                subject_dict.append([num, None])
 
-        return subject_df
+        return subject_dict
 
-    @task
-    def subject_data_to_Redshift(**kwargs: Any) -> None:
-        redshift_hook = RedshiftSQLHook(redshift_conn_id=REDSHIFT_CONN_ID)
-        engine = redshift_hook.get_sqlalchemy_engine()
-
-        df.to_sql(conn=engine)
+    subject_data_to_Redshift = RedshiftSQLOperator(
+        task_id="subject_data_to_Redshift",
+        sql= "CREATE TABLE subject_by_isbn FROM {{ ti.xcom_pull(task_ids='get_subject_from_isbn')}}"
+    )
 
 
 
