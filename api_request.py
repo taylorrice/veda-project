@@ -13,7 +13,7 @@ def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
     # Get the file inside the S3 Bucket
     s3_response = s3.get_object(
         Bucket=bucket,
-        Key='nyt_data/bestsellers_isbns.json'
+        Key='nyt_data/bestsellers_isbns_sample.json'
     )
 
     # Get the Body object in the S3 get_object() response
@@ -29,11 +29,13 @@ def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
 
     for dict in isbns_json:
         for num in dict.values():
-            res_json = requests.get(f"https://openlibrary.org/books/{num}.json").json()
             try:
+                res_json = requests.get(f"https://openlibrary.org/isbn/{num}.json").json()
                 res_json["subjects"]
                 subjects = res_json["subjects"]
                 subject_dict_list.append({num: subjects})
+            except ValueError:
+                continue
             except KeyError:
                 subject_dict_list.append({num: None})
 

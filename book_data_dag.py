@@ -35,6 +35,7 @@ with DAG(
     nyt_data_s3_to_redshift = S3ToRedshiftOperator(
         task_id="transfer_nyt_s3_to_redshift",
         redshift_conn_id=REDSHIFT_CONN_ID,
+        schema="public",
         s3_bucket=S3_BUCKET,
         s3_key=NYT_S3_KEY,
         table=REDSHIFT_TABLE,
@@ -50,15 +51,17 @@ with DAG(
 
         subject_dict_list = [{"isbn13": "book_subjects"}]
 
-        for num in isbns:
-            res_json = requests.get(f"https://openlibrary.org/books/{num}.json")
-            if res_json["subjects"]:
-                subjects = res_json["subjects"]
-                subject_dict_list.append({num: subjects})
-            else:
-                subject_dict_list.append({num: None})
-
-        return subject_dict_list
+        for dict in isbns_json:
+            for num in dict.values():
+                try:
+                    res_json = requests.get(f"https://openlibrary.org/isbn/{num}.json").json()
+                    res_json["subjects"]
+                    subjects = res_json["subjects"]
+                    subject_dict_list.append({num: subjects})
+                except ValueError:
+                    continue
+                except KeyError:
+                    subject_dict_list.append({num: None})
 
     subject_data_to_Redshift = SQLExecuteQueryOperator(
         task_id="subject_data_to_Redshift",
