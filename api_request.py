@@ -5,7 +5,7 @@ from typing import Dict, List
 
 
 BUCKET = 'veda-project-mwaa'
-s3 = boto3.client('s3')
+s3 = boto3.resource('s3')
 
 def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
 
@@ -42,5 +42,5 @@ def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
     return subject_dict_list
 
 body = get_subject_from_isbn(BUCKET, s3)
-object = s3.Object(BUCKET, 'nyt_data/subject_isbn.json')
+object = s3.Bucket(BUCKET).Object('nyt_data/subject_isbn.json')
 result = object.put(Body=body)
