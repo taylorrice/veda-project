@@ -3,6 +3,7 @@ import requests
 from typing import Any, Dict, List
 
 from airflow import DAG
+from airflow.decorators import task
 from airflow.models.taskinstance import TaskInstance
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator

@@ -15,7 +15,6 @@ def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
         s3_response = s3.Bucket(bucket).Object('nyt_data/bestsellers_isbns_sample.json')
         file_content = s3_response.get()['Body'].read().decode('utf-8')
         json_content = json.loads(file_content)
-    except:
 
 
     subject_dict_list = [{"isbn13": "book_subjects"}]
