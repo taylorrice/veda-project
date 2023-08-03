@@ -10,24 +10,17 @@ s3 = boto3.resource('s3')
 def get_subject_from_isbn(bucket: str, s3) -> List[Dict]:
 
 
-    # Get the file inside the S3 Bucket
-    s3_response = s3.get_object(
-        Bucket=bucket,
-        Key='nyt_data/bestsellers_isbns_sample.json'
-    )
+    try:
+        # Get the file inside the S3 Bucket
+        s3_response = s3.Bucket(bucket).Object('nyt_data/bestsellers_isbns_sample.json')
+        file_content = s3_response.get()['Body'].read().decode('utf-8')
+        json_content = json.loads(file_content)
+    except:
 
-    # Get the Body object in the S3 get_object() response
-    s3_object_body = s3_response.get('Body')
-
-    # Read the data in bytes format and convert it to string
-    isbns_string = s3_object_body.read().decode()
-
-    isbns_json = json.loads(isbns_string)
-    print(isbns_json)
 
     subject_dict_list = [{"isbn13": "book_subjects"}]
 
-    for dict in isbns_json:
+    for dict in json_content:
         for num in dict.values():
             try:
                 res_json = requests.get(f"https://openlibrary.org/isbn/{num}.json").json()
