@@ -48,17 +48,17 @@ with DAG(
     def get_subject_from_isbn(**kwargs: Any) -> Dict[List]:
         isbns = kwargs["ti"].xcom_pull(task_ids='get_isbn_values')
 
-        subject_dict = {["isbn13", "book_subjects"]}
+        subject_dict_list = [{"isbn13": "book_subjects"}]
 
         for num in isbns:
             res_json = requests.get(f"https://openlibrary.org/books/{num}.json")
             if res_json["subjects"]:
                 subjects = res_json["subjects"]
-                subject_dict.append([num, subjects])
+                subject_dict_list.append({num: subjects})
             else:
-                subject_dict.append([num, None])
+                subject_dict_list.append({num: None})
 
-        return subject_dict
+        return subject_dict_list
 
     subject_data_to_Redshift = RedshiftSQLOperator(
         task_id="subject_data_to_Redshift",
