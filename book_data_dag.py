@@ -6,10 +6,10 @@ from airflow import DAG
 from airflow.models.taskinstance import TaskInstance
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.amazon.aws.operators.s3 import S3CreateObjectOperator
 from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
-from airflow.providers.amazon.aws.operators.redshift import RedshiftSQLOperator
 from airflow.providers.amazon.aws.hooks.redshift_sql import RedshiftSQLHook
 
 '''
@@ -40,7 +40,7 @@ with DAG(
         table=REDSHIFT_TABLE,
     )
 
-    get_isbn_values = RedshiftSQLOperator(
+    get_isbn_values = SQLExecuteQueryOperator(
         task_id='get_isbn_values', sql='SELECT "isbn13" FROM "dev"."public"."bestsellers_nyt_2010_2019";'
     )
 
@@ -60,12 +60,10 @@ with DAG(
 
         return subject_dict_list
 
-    subject_data_to_Redshift = RedshiftSQLOperator(
+    subject_data_to_Redshift = SQLExecuteQueryOperator(
         task_id="subject_data_to_Redshift",
         sql= "CREATE TABLE subject_by_isbn FROM {{ ti.xcom_pull(task_ids='get_subject_from_isbn')}}"
     )
-
-
 
     end = EmptyOperator(task_id="end")
 
