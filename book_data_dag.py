@@ -64,6 +64,8 @@ with DAG(
                 except KeyError:
                     subject_dict_list.append({num: None})
 
+        return subject_dict_list
+
     subject_data_to_Redshift = SQLExecuteQueryOperator(
         task_id="subject_data_to_Redshift",
         sql= "CREATE TABLE subject_by_isbn_airflow FROM {{ ti.xcom_pull(task_ids='get_subject_from_isbn')}}"
