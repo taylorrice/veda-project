@@ -47,7 +47,7 @@ with DAG(
     )
 
     @task(task_id="get_subject_from_isbn")
-    def get_subject_from_isbn(**kwargs: Any) -> Dict[List]:
+    def get_subject_from_isbn(**kwargs: Any) -> List[Dict[Any, Any]]:
         isbns = kwargs["ti"].xcom_pull(task_ids='get_isbn_values')
 
         subject_dict_list = [{"isbn13": "book_subjects"}]
