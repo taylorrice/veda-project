@@ -69,7 +69,7 @@ with DAG(
     subject_data_to_Redshift = SQLExecuteQueryOperator(
         task_id="subject_data_to_Redshift",
         sql= "CREATE TABLE subject_by_isbn_airflow FROM {{ params.all_subjects }}",
-        parameters={"all_subjects": " ti.xcom_pull(task_ids='get_subject_from_isbn')"},
+        parameters={"all_subjects": " {{ ti.xcom_pull(task_ids='get_subject_from_isbn') }}"},
     )
 
     end = EmptyOperator(task_id="end")
